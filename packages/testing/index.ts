@@ -1,0 +1,183 @@
+import { Platform } from '@platform/index';
+
+/**
+ * 模拟的存储实现
+ */
+class MockStorage {
+  private store: Record<string, any> = {};
+
+  async set(key: string, value: any): Promise<void> {
+    this.store[key] = value;
+  }
+
+  async get(key: string): Promise<any> {
+    return this.store[key] ?? null;
+  }
+
+  async remove(key: string): Promise<void> {
+    delete this.store[key];
+  }
+
+  // 清除所有存储数据，用于测试重置
+  clear(): void {
+    this.store = {};
+  }
+
+  // 获取所有存储数据，用于测试验证
+  getAll(): Record<string, any> {
+    return { ...this.store };
+  }
+}
+
+/**
+ * 模拟的运行时实现
+ */
+class MockRuntime {
+  private version: string;
+  private isDev: boolean;
+  private platformInfo: { os: string; arch: string; platform: string };
+
+  constructor(version = '1.0.0', isDev = true, platformInfo = { os: 'test', arch: 'x64', platform: 'mock' }) {
+    this.version = version;
+    this.isDev = isDev;
+    this.platformInfo = platformInfo;
+  }
+
+  getVersion(): string {
+    return this.version;
+  }
+
+  getPlatformInfo(): { os: string; arch: string; platform: string } {
+    return { ...this.platformInfo };
+  }
+
+  isDevMode(): boolean {
+    return this.isDev;
+  }
+
+  // 设置运行时属性，用于测试
+  setVersion(version: string): void {
+    this.version = version;
+  }
+
+  setDevMode(isDev: boolean): void {
+    this.isDev = isDev;
+  }
+
+  setPlatformInfo(platformInfo: { os: string; arch: string; platform: string }): void {
+    this.platformInfo = platformInfo;
+  }
+}
+
+/**
+ * 模拟的消息传递实现
+ */
+class MockMessaging {
+  private messageHandlers: ((message: any, sender: any) => void)[] = [];
+  private messageQueue: any[] = [];
+
+  async sendMessage(message: any): Promise<any> {
+    this.messageQueue.push(message);
+    
+    // 模拟消息响应
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          data: message,
+          platform: 'mock',
+          timestamp: Date.now()
+        });
+      }, 0);
+    });
+  }
+
+  onMessage(callback: (message: any, sender: any) => void): void {
+    this.messageHandlers.push(callback);
+  }
+
+  removeListener(callback: (message: any, sender: any) => void): void {
+    const index = this.messageHandlers.indexOf(callback);
+    if (index > -1) {
+      this.messageHandlers.splice(index, 1);
+    }
+  }
+
+  // 触发模拟消息，用于测试消息处理器
+  emitMessage(message: any, sender: any = {}): void {
+    this.messageHandlers.forEach(handler => handler(message, sender));
+  }
+
+  // 获取发送过的消息队列，用于测试验证
+  getSentMessages(): any[] {
+    return [...this.messageQueue];
+  }
+
+  // 清除消息队列，用于测试重置
+  clearSentMessages(): void {
+    this.messageQueue = [];
+  }
+}
+
+/**
+ * 创建模拟平台实例
+ */
+export function createMockPlatform(name: 'web' | 'electron' | 'webext' = 'web'): {
+  platform: Platform;
+  mockStorage: MockStorage;
+  mockRuntime: MockRuntime;
+  mockMessaging: MockMessaging;
+} {
+  const mockStorage = new MockStorage();
+  const mockRuntime = new MockRuntime();
+  const mockMessaging = new MockMessaging();
+
+  const platform: Platform = {
+    name,
+    storage: mockStorage,
+    runtime: mockRuntime,
+    messaging: mockMessaging
+  };
+
+  return {
+    platform,
+    mockStorage,
+    mockRuntime,
+    mockMessaging
+  };
+}
+
+/**
+ * 创建特定平台的模拟实现
+ */
+export function createWebMockPlatform() {
+  return createMockPlatform('web');
+}
+
+export function createElectronMockPlatform() {
+  const { platform, mockRuntime, mockStorage, mockMessaging } = createMockPlatform('electron');
+  mockRuntime.setPlatformInfo({ os: 'win32', arch: 'x64', platform: 'electron' });
+  return { platform, mockRuntime, mockStorage, mockMessaging };
+}
+
+export function createWebextMockPlatform() {
+  const { platform, mockRuntime, mockStorage, mockMessaging } = createMockPlatform('webext');
+  mockRuntime.setPlatformInfo({ os: 'chrome', arch: 'x86_64', platform: 'webextension' });
+  return { platform, mockRuntime, mockStorage, mockMessaging };
+}
+
+/**
+ * 测试辅助函数：等待一定时间
+ */
+export function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 测试辅助函数：模拟异步错误
+ */
+export function simulateAsyncError<T>(error: Error): Promise<T> {
+  return new Promise((_, reject) => {
+    setTimeout(() => reject(error), 0);
+  });
+}
