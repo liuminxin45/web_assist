@@ -1,0 +1,21 @@
+{
+  "name": "electron-app",
+  "private": true,
+  "version": "0.0.0",
+  "main": "dist/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "electron .",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "electron": "^28.2.0",
+    "@platform/index": "workspace:*",
+    "@core/index": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
