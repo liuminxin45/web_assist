@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'pnpm'
+    
+    - name: Install pnpm
+      run: npm install -g pnpm
+    
+    - name: Install dependencies
+      run: pnpm install
+    
+    - name: TypeScript Check
+      run: pnpm typecheck
+    
+    - name: Lint
+      run: pnpm lint
+    
+    - name: Format Check
+      run: pnpm format -- --check
+    
+    - name: Run Tests
+      run: pnpm test
+    
+    - name: Build All
+      run: pnpm build:all
+
+  deploy-extension:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'pnpm'
+    
+    - name: Install pnpm
+      run: npm install -g pnpm
+    
+    - name: Install dependencies
+      run: pnpm install
+    
+    - name: Build Extension
+      run: cd apps/extension && pnpm build
+    
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: extension-build
+        path: apps/extension/artifacts/

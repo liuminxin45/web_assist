@@ -2,30 +2,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import webExtension from 'vite-plugin-web-extension'
+import manifest from './manifest.json'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     webExtension({
-      manifest: {
-        name: 'Web Helper Extension',
-        version: '0.0.0',
-        manifest_version: 3,
-        action: {
-          default_popup: 'popup.html',
-          default_icon: {
-            16: 'icons/icon16.png',
-            48: 'icons/icon48.png',
-            128: 'icons/icon128.png'
-          }
-        },
-        background: {
-          service_worker: 'background.ts',
-          type: 'module'
-        },
-        permissions: ['storage']
-      },
+      manifest,
       webExtConfig: {
         sourceDir: 'dist',
         artifactsDir: 'artifacts',
