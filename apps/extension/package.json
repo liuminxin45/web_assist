@@ -4,22 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite build --watch",
-    "build": "tsc && vite build",
-    "typecheck": "tsc --noEmit"
+    "dev": "npx vite build --watch",
+    "build": "npx vite build"
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@platform/index": "workspace:*",
-    "@platform/webext": "workspace:*",
-    "@core/index": "workspace:*"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.0.8",
-    "vite-plugin-web-extension": "^4.1.5"
+    "react-dom": "^18.2.0"
   }
 }

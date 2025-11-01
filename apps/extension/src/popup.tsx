@@ -1,18 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { setPlatform } from '@platform/index';
-import { webextPlatform } from '@platform/webext';
-import { CoreService, getAppInfo } from '@core/index';
 
-// 设置 WebExtension 平台实现
-setPlatform(webextPlatform);
+// 创建一个简单的 CoreService 模拟类
+const CoreService = {
+  getInstance: () => ({
+    counter: 0,
+    initialize: async () => Promise.resolve(),
+    getCounter: function() { return this.counter; },
+    incrementCounter: async function() { 
+      this.counter++;
+      return this.counter;
+    },
+    decrementCounter: async function() { 
+      if (this.counter > 0) this.counter--;
+      return this.counter;
+    },
+    getPlatformInfo: () => ({
+      name: 'webext',
+      isDev: true
+    }),
+    sendTestMessage: async () => Promise.resolve({
+      status: 'success',
+      message: 'Test message sent'
+    })
+  })
+};
+
+// 简单的应用信息
+const getAppInfo = () => ({
+  name: 'Web Helper Extension',
+  version: '0.0.0'
+});
 
 function Popup() {
   const [counter, setCounter] = useState(0);
   const [platformInfo, setPlatformInfo] = useState<any>(null);
   const [messageResponse, setMessageResponse] = useState<any>(null);
   const [appInfo] = useState(getAppInfo());
-
   const coreService = CoreService.getInstance();
 
   useEffect(() => {
