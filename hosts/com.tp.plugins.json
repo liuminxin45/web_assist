@@ -1,0 +1,9 @@
+{
+  "name": "com.tp.plugins",
+  "description": "Plugin Host for Chrome Web Helper Extension",
+  "path": "e:\\3rd\\chrome\\web_helper\\hosts\\com.tp.plugins.js",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*"
+  ]
+}

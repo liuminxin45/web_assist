@@ -14,7 +14,12 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "nativeMessaging"],
+  "host_permissions": ["<all_urls>"],
+  "externally_connectable": {
+    "ids": [],
+    "matches": ["https://*/*"]
+  },
   "description": "A minimal skeleton browser extension",
   "icons": {
     "16": "icons/icon16.svg",

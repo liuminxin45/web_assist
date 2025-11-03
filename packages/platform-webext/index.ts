@@ -1,4 +1,5 @@
 import { Platform, PLATFORM_TYPE } from '@platform/index';
+import { webExtPluginManager } from './src/plugin/WebExtPluginManager';
 
 // WebExtension 平台实现
 const webextStorage: Platform['storage'] = {
@@ -105,10 +106,29 @@ const webextMessaging: Platform['messaging'] = {
   },
 };
 
+const webextPluginManager: Platform['pluginManager'] = {
+  discoverAndLoadPlugins: () => webExtPluginManager.discoverAndLoadPlugins(),
+  activatePlugin: (pluginId) => webExtPluginManager.activatePlugin(pluginId),
+  deactivatePlugin: (pluginId) => webExtPluginManager.deactivatePlugin(pluginId),
+  getPlugin: (pluginId) => webExtPluginManager.getPlugin(pluginId),
+  getActivePlugins: () => webExtPluginManager.getActivePlugins(),
+  installPlugin: (pluginData) => webExtPluginManager.installPlugin(pluginData),
+  uninstallPlugin: (pluginId) => webExtPluginManager.uninstallPlugin(pluginId),
+  listInstalledPlugins: async () => {
+    // 转换格式以匹配接口要求
+    const plugins = await webExtPluginManager.getLoadedPlugins();
+    return plugins.map(plugin => ({
+      id: plugin.id,
+      metadata: plugin.metadata
+    }));
+  }
+};
+
 export const webextPlatform: Platform = {
   storage: webextStorage,
   runtime: webextRuntime,
   messaging: webextMessaging,
+  pluginManager: webextPluginManager,
   name: PLATFORM_TYPE.WEBEXT,
 };
 

@@ -1,0 +1,35 @@
+{
+  "name": "示例计数器插件",
+  "version": "1.0.0",
+  "description": "一个简单的示例插件，用于演示插件系统",
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "examplePlugin.increment",
+        "title": "增加计数器"
+      },
+      {
+        "command": "examplePlugin.decrement",
+        "title": "减少计数器"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "examplePlugin.increment",
+          "when": "view == counterView"
+        },
+        {
+          "command": "examplePlugin.decrement",
+          "when": "view == counterView"
+        }
+      ]
+    }
+  },
+  "activationEvents": [
+    "onView:counterView",
+    "onCommand:examplePlugin.increment",
+    "onCommand:examplePlugin.decrement"
+  ]
+}
