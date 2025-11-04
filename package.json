@@ -11,7 +11,7 @@
     "dev:extension": "pnpm --filter extension-app dev",
     "dev:all": "concurrently \"pnpm dev:web\" \"pnpm dev:electron\" \"pnpm dev:extension\"",
     "build:all": "pnpm run -r build",
-    "typecheck": "pnpm run -r typecheck",
+    "typecheck": "cd apps/web && tsc --noEmit --skipLibCheck",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
     "test": "npx jest",

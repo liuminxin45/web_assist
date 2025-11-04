@@ -24,8 +24,11 @@ jobs:
     - name: Install dependencies
       run: pnpm install
     
-    - name: TypeScript Check
-      run: pnpm typecheck
+    - name: Build All
+      run: pnpm build:all
+    
+    - name: Run Tests
+      run: pnpm test
     
     - name: Lint
       run: pnpm lint
@@ -33,11 +36,8 @@ jobs:
     - name: Format Check
       run: pnpm format -- --check
     
-    - name: Run Tests
-      run: pnpm test
-    
-    - name: Build All
-      run: pnpm build:all
+    - name: TypeScript Check
+      run: pnpm typecheck
 
   deploy-extension:
     needs: build-and-test

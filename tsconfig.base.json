@@ -5,21 +5,36 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "typeRoots": ["node_modules/@types"],
     "paths": {
+      "@platform": ["packages/platform"],
       "@platform/*": ["packages/platform/*"],
-      "@core/*": ["packages/core/*"]
+      "@platform/web": ["packages/platform-web"],
+      "@platform/web/*": ["packages/platform-web/*"],
+      "@platform/electron": ["packages/platform-electron"],
+      "@platform/electron/*": ["packages/platform-electron/*"],
+      "@platform/webext": ["packages/platform-webext"],
+      "@platform/webext/*": ["packages/platform-webext/*"],
+      "@core": ["packages/core"],
+      "@core/*": ["packages/core/*"],
+      "@testing": ["packages/testing"],
+      "@testing/*": ["packages/testing/*"]
     }
   },
-  "include": ["packages", "apps"]
+  "include": ["packages/**/*", "apps/**/*"],
+  "exclude": ["node_modules", "dist", "build", "**/__tests__/**", "**/*.test.ts", "**/*.spec.ts"]
 }

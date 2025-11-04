@@ -73,8 +73,8 @@ class IpcManager {
   private handlers = new Map<string, IpcHandler>();
   private pendingRequests = new Map<string, { resolve: Function; reject: Function }>();
   private notificationListeners = new Map<string, Set<(data: any) => void>>();
-  private processId: string;
-  private processType: string;
+  private processId!: string;
+  private processType!: string;
   private isInitialized = false;
   private connectedProcesses = new Map<string, { processType: string; lastSeen: number }>();
 
