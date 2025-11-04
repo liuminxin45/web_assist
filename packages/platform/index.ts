@@ -1,4 +1,40 @@
-import { PluginMetadata, PluginExports } from '../core/index';
+// 已在本地定义相关接口，无需从core包导入
+
+// 插件元数据接口
+export interface PluginMetadata {
+  id: string;
+  name: string;
+  version: string;
+  description?: string;
+  author?: string;
+  main?: string;
+  [key: string]: unknown;
+}
+
+// 插件上下文接口
+export interface PluginContext {
+  api: Record<string, any>;
+  logger: {
+    info: (...args: any[]) => void;
+    warn: (...args: any[]) => void;
+    error: (...args: any[]) => void;
+    debug: (...args: any[]) => void;
+  };
+  [key: string]: unknown;
+}
+
+// 插件激活函数类型
+export type PluginActivateFunction = (context: PluginContext) => Promise<void>;
+
+// 插件停用函数类型
+export type PluginDeactivateFunction = () => Promise<void>;
+
+// 插件导出接口
+export interface PluginExports {
+  activate: PluginActivateFunction;
+  deactivate?: PluginDeactivateFunction;
+  [key: string]: unknown;
+}
 
 // 平台存储接口
 export interface PlatformStorage {

@@ -1,3 +1,4 @@
+// Test comment
 import { getPlatform, Platform } from '../platform/index';
 
 // 延迟获取平台实例的函数
@@ -18,7 +19,22 @@ export interface PluginInfo {
   version: string;
   enabled: boolean;
   capabilities: string[];
-  [key: string]: any;
+  description?: string;
+  [key: string]: unknown;
+}
+
+// 定义平台信息接口
+export interface PlatformInfo {
+  name: string;
+  version: string;
+  appName: string;
+  isDev: boolean;
+  platformDetails: {
+    os: string;
+    arch: string;
+    platform: string;
+  };
+  nativeHostConnected: boolean;
 }
 
 // 核心服务类
@@ -95,13 +111,25 @@ export class CoreService {
   }
 
   // 获取平台信息
-  getPlatformInfo() {
+  getPlatformInfo(): PlatformInfo {
     const platform = getCurrentPlatform();
-    const manifest = platform.runtime.getManifest();
+    const manifest = platform.runtime.getManifest() as { version?: string; name?: string };
+    // 从环境中获取开发模式信息
+    const isDev = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development' || 
+                  typeof window !== 'undefined' && window && 'object' === typeof window && 
+                  '__TARGET__' in window && typeof (window as any).__TARGET__ === 'string' && (window as any).__TARGET__ === 'development';
+    // 模拟平台详情
+    const platformDetails = {
+      os: typeof process !== 'undefined' ? process.platform || 'unknown' : 'unknown',
+      arch: typeof process !== 'undefined' ? process.arch || 'unknown' : 'unknown',
+      platform: platform.name
+    };
     return {
       name: platform.name,
-      version: manifest.version || '1.0.0',
-      appName: manifest.name || 'Web Helper',
+      version: manifest?.version || '1.0.0',
+      appName: manifest?.name || 'Web Helper',
+      isDev,
+      platformDetails,
       nativeHostConnected: this.nativeHostConnected
     };
   }
@@ -145,15 +173,18 @@ export class CoreService {
         if (response.success) {
           // 特殊处理测试用例，确保测试环境中的插件状态正确更新
           if (response.data && response.data.length > 0) {
-            this.plugins = response.data.map((plugin: PluginInfo) => ({
-              ...plugin,
-              enabled: plugin.name === 'test_plugin' ? 
+            this.plugins = (response.data as unknown[]).map((pluginData) => {
+              const plugin = pluginData as PluginInfo;
+              return {  
+                ...plugin,
+                enabled: plugin.name === 'test_plugin' ? 
                 // 不使用额外状态，直接使用插件自身的enabled属性
                 plugin.enabled : 
                 plugin.enabled
-            }));
+              } as PluginInfo;
+            });
           } else {
-            // 对于测试环境，提供一个mock的插件列表，包含所有必需属性
+              // 对于测试环境，提供一个mock的插件列表，包含所有必需属性
             this.plugins = [
               {
                 name: 'test_plugin',

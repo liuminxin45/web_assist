@@ -1,5 +1,5 @@
-import { pluginManager, PluginManager } from '../plugin/pluginManager';
-import { ipcManager, IpcHandler, IpcRequestMessage } from '../ipc/ipcManager';
+import { pluginManager } from '../plugin/pluginManager';
+import { ipcManager, IpcRequestMessage } from '../ipc/ipcManager';
 import { __TARGET__ } from '../../../platform/index';
 
 // 插件进程类型

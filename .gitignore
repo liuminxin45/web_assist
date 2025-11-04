@@ -64,6 +64,16 @@ artifacts
 
 # TypeScript
 *.tsbuildinfo
+# Ignore generated JavaScript files
+*.js
+# But don't ignore configuration files
+!*.config.js
+!webpack.config.js
+!vite.config.js
+# Ignore TypeScript declaration files
+*.d.ts
+# But don't ignore type declaration files that are part of the source code
+!packages/**/*.d.ts
 
 # Optional npm cache directory
 .npm

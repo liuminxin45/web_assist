@@ -42,7 +42,7 @@ class PluginManager {
   }
 
   // 获取插件文件列表（平台相关实现）
-  private async getPluginFiles(directory: string): Promise<string[]> {
+  private async getPluginFiles(_directory: string): Promise<string[]> {
     // 平台特定的实现将在子类中重写
     // 这里提供一个默认实现
     return [];
