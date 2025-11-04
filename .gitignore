@@ -90,7 +90,6 @@ yarn-error.log
 .pnp.*
 
 # pnpm
-pnpm-lock.yaml
 
 # Editor
 .vscode/
