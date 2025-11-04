@@ -9,8 +9,8 @@
     "@platform/index": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "workspace:*",
-    "typescript": "workspace:*"
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.2"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

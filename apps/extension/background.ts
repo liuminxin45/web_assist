@@ -216,5 +216,4 @@ if (typeof chrome !== 'undefined' && chrome.runtime) {
 // 启动扩展
 initializeExtension();
 registerMessageListeners();
-
 console.log('Background script loaded - Plugin Architecture Ready');

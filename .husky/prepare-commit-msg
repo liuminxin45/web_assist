@@ -1,4 +1,11 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-exec < /dev/tty && npx cz --hook || true
+# 检测Windows环境并相应调整行为
+if [ -n "$MSYSTEM" ] || [ -n "$WINDIR" ]; then
+  # Windows环境下直接运行commitizen
+  npx cz --hook || true
+else
+  # Unix/Linux环境下使用原始逻辑
+  exec < /dev/tty && npx cz --hook || true
+fi

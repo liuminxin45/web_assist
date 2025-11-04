@@ -1,6 +1,6 @@
-import { CoreService, PluginInfo } from '@core/index';
-import { setPlatform } from '@platform/index';
-import { createWebextMockPlatform } from '@testing/index';
+import { CoreService, PluginInfo } from '../index';
+import { setPlatform } from '../../platform/index';
+import { createWebextMockPlatform } from '../../testing/index';
 
 describe('插件管理功能测试', () => {
   let mockPlatform: any;
@@ -386,18 +386,63 @@ describe('插件管理功能测试', () => {
 // 扩展测试：测试跨平台兼容性
 // 由于插件系统主要在WebExtension环境中使用，我们还需要确保在其他平台上有适当的回退行为
 describe('插件系统跨平台兼容性测试', () => {
-  it('在非WebExtension平台上应优雅降级', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.resetModules();
+  });
+
+  it('在web平台上应输出警告并返回空数组', async () => {
     // 创建Web平台的mock
     const { platform } = createWebextMockPlatform();
-    platform.name = 'web'; // 修改为非webext平台
+    platform.name = 'web'; // 修改为web平台
     setPlatform(platform);
     
     const coreService = CoreService.getInstance();
-    await coreService.initialize();
     
-    // 验证在非WebExtension平台上刷新插件应返回空数组
+    // 捕获控制台警告
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    
+    // 验证在web平台上刷新插件应返回空数组
     const plugins = await coreService.refreshPlugins();
+    
+    // 验证返回值
     expect(plugins).toEqual([]);
     expect(coreService.getPlatformInfo().nativeHostConnected).toBe(false);
+    
+    // 验证输出了警告信息
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Plugins are not supported in web environment');
+    
+    // 清理
+    consoleWarnSpy.mockRestore();
+  });
+  
+  it('在electron平台上处理sendMessage错误', async () => {
+    // 创建electron平台的mock
+    const { platform } = createWebextMockPlatform();
+    platform.name = 'electron'; // 修改为electron平台
+    setPlatform(platform);
+    
+    const coreService = CoreService.getInstance();
+    
+    // 模拟sendMessage抛出错误
+    platform.messaging.sendMessage = async () => {
+      throw new Error('Platform not supported');
+    };
+    
+    // 捕获控制台错误
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // 调用刷新插件方法
+    const plugins = await coreService.refreshPlugins();
+    
+    // 验证返回值
+    expect(plugins).toEqual([]);
+    expect(coreService.getPlatformInfo().nativeHostConnected).toBe(false);
+    
+    // 验证输出了错误信息
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error refreshing plugins:', expect.any(Error));
+    
+    // 清理
+    consoleErrorSpy.mockRestore();
   });
 });

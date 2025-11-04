@@ -1,4 +1,4 @@
-import { PluginMetadata, PluginExports } from '@core/index';
+import { PluginMetadata, PluginExports } from '../core/index';
 
 // 平台存储接口
 export interface PlatformStorage {
@@ -79,6 +79,17 @@ declare global {
   }
 }
 
+// 导出环境变量类型定义（将在构建时注入）
+declare global {
+  interface Window {
+    __TARGET__?: string;
+  }
+  
+  interface Process {
+    env?: Record<string, string | undefined>;
+  }
+}
+
 export const __TARGET__ = (typeof window !== 'undefined' && window.__TARGET__) || 
-  (typeof process !== 'undefined' && process.env.__TARGET__) || 
+  (typeof global !== 'undefined' && (global as any).process?.env?.__TARGET__) || 
   'web';

@@ -1,6 +1,6 @@
 import { pluginManager, PluginManager } from '../plugin/pluginManager';
 import { ipcManager, IpcHandler, IpcRequestMessage } from '../ipc/ipcManager';
-import { Platform, PLATFORM_TYPE, __TARGET__ } from '@platform/index';
+import { __TARGET__ } from '../../../platform/index';
 
 // 插件进程类型
 enum PluginProcessType {
@@ -29,7 +29,12 @@ interface PluginExecutionContext {
 
 // 插件进程管理器
 class PluginProcessManager {
-  private processConfig: PluginProcessConfig;
+  private processConfig: PluginProcessConfig = {
+    processType: PluginProcessType.RENDERER,
+    allowPluginExecution: false,
+    pluginDirectories: [],
+    maxWorkerProcesses: 4
+  };
   private activeExecutions: Map<string, PluginExecutionContext> = new Map();
   private workerProcesses: Set<string> = new Set();
   private isInitialized = false;
@@ -203,7 +208,7 @@ class PluginProcessManager {
   }
 
   // 关闭工作进程
-  private async shutdownWorkerProcess(workerId: string): Promise<void> {
+  private async shutdownWorkerProcess(_workerId: string): Promise<void> {
     // 平台特定实现
     throw new Error('Worker process shutdown not implemented for this platform');
   }

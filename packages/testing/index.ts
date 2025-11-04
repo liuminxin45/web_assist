@@ -1,4 +1,4 @@
-import { Platform } from '@platform/index';
+import { Platform } from '../platform/index';
 
 /**
  * 模拟的存储实现
@@ -55,6 +55,19 @@ class MockRuntime {
     return this.isDev;
   }
 
+  // 实现PlatformRuntime接口所需的方法
+  getURL(path: string): string {
+    return `https://mock-extension.test/${path}`;
+  }
+
+  getManifest(): any {
+    return {
+      name: 'Mock Extension',
+      version: this.version,
+      manifest_version: 3
+    };
+  }
+
   // 设置运行时属性，用于测试
   setVersion(version: string): void {
     this.version = version;
@@ -73,7 +86,7 @@ class MockRuntime {
  * 模拟的消息传递实现
  */
 class MockMessaging {
-  private messageHandlers: ((message: any, sender: any) => void)[] = [];
+  private messageHandlers: ((message: any) => void)[] = [];
   private messageQueue: any[] = [];
 
   async sendMessage(message: any): Promise<any> {
@@ -92,11 +105,12 @@ class MockMessaging {
     });
   }
 
-  onMessage(callback: (message: any, sender: any) => void): void {
+  onMessage(callback: (message: any) => void): void {
     this.messageHandlers.push(callback);
   }
 
-  removeListener(callback: (message: any, sender: any) => void): void {
+  // 实现PlatformMessaging接口所需的offMessage方法
+  offMessage(callback: (message: any) => void): void {
     const index = this.messageHandlers.indexOf(callback);
     if (index > -1) {
       this.messageHandlers.splice(index, 1);
@@ -105,7 +119,8 @@ class MockMessaging {
 
   // 触发模拟消息，用于测试消息处理器
   emitMessage(message: any, sender: any = {}): void {
-    this.messageHandlers.forEach(handler => handler(message, sender));
+    // 忽略sender参数，只传递message
+    this.messageHandlers.forEach(handler => handler(message));
   }
 
   // 获取发送过的消息队列，用于测试验证
@@ -120,6 +135,70 @@ class MockMessaging {
 }
 
 /**
+ * 模拟的插件管理器实现
+ */
+class MockPluginManager {
+  private plugins: Map<string, { metadata: any; exports: any }> = new Map();
+  private activePlugins: Set<string> = new Set();
+
+  async discoverAndLoadPlugins(): Promise<void> {
+    // 模拟发现和加载插件
+  }
+
+  async activatePlugin(pluginId: string): Promise<void> {
+    this.activePlugins.add(pluginId);
+  }
+
+  async deactivatePlugin(pluginId: string): Promise<void> {
+    this.activePlugins.delete(pluginId);
+  }
+
+  async getPlugin(pluginId: string): Promise<{ metadata: any; exports: any } | null> {
+    return this.plugins.get(pluginId) || null;
+  }
+
+  async getActivePlugins(): Promise<Array<{ id: string; metadata: any }>> {
+    const result: Array<{ id: string; metadata: any }> = [];
+    for (const pluginId of this.activePlugins) {
+      const plugin = this.plugins.get(pluginId);
+      if (plugin) {
+        result.push({ id: pluginId, metadata: plugin.metadata });
+      }
+    }
+    return result;
+  }
+
+  async installPlugin(pluginData: any): Promise<boolean> {
+    const { id, metadata, exports } = pluginData;
+    this.plugins.set(id, { metadata, exports });
+    return true;
+  }
+
+  async uninstallPlugin(pluginId: string): Promise<boolean> {
+    return this.plugins.delete(pluginId);
+  }
+
+  async listInstalledPlugins(): Promise<Array<{ id: string; metadata: any }>> {
+    const result: Array<{ id: string; metadata: any }> = [];
+    for (const [id, plugin] of this.plugins.entries()) {
+      result.push({ id, metadata: plugin.metadata });
+    }
+    return result;
+  }
+
+  // 添加插件，用于测试
+  addPlugin(pluginId: string, metadata: any, exports: any): void {
+    this.plugins.set(pluginId, { metadata, exports });
+  }
+
+  // 清除所有插件，用于测试重置
+  clearPlugins(): void {
+    this.plugins.clear();
+    this.activePlugins.clear();
+  }
+}
+
+/**
  * 创建模拟平台实例
  */
 export function createMockPlatform(name: 'web' | 'electron' | 'webext' = 'web'): {
@@ -127,23 +206,27 @@ export function createMockPlatform(name: 'web' | 'electron' | 'webext' = 'web'):
   mockStorage: MockStorage;
   mockRuntime: MockRuntime;
   mockMessaging: MockMessaging;
+  mockPluginManager: MockPluginManager;
 } {
   const mockStorage = new MockStorage();
   const mockRuntime = new MockRuntime();
   const mockMessaging = new MockMessaging();
+  const mockPluginManager = new MockPluginManager();
 
   const platform: Platform = {
     name,
     storage: mockStorage,
     runtime: mockRuntime,
-    messaging: mockMessaging
+    messaging: mockMessaging,
+    pluginManager: mockPluginManager
   };
 
   return {
     platform,
     mockStorage,
     mockRuntime,
-    mockMessaging
+    mockMessaging,
+    mockPluginManager
   };
 }
 
@@ -161,9 +244,9 @@ export function createElectronMockPlatform() {
 }
 
 export function createWebextMockPlatform() {
-  const { platform, mockRuntime, mockStorage, mockMessaging } = createMockPlatform('webext');
+  const { platform, mockRuntime, mockStorage, mockMessaging, mockPluginManager } = createMockPlatform('webext');
   mockRuntime.setPlatformInfo({ os: 'chrome', arch: 'x86_64', platform: 'webextension' });
-  return { platform, mockRuntime, mockStorage, mockMessaging };
+  return { platform, mockRuntime, mockStorage, mockMessaging, mockPluginManager };
 }
 
 /**

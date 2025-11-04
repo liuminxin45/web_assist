@@ -1,5 +1,5 @@
 import { PluginMetadata, PluginExports, LoadedPlugin, PluginContext, PluginError } from './types';
-import { platform } from '@platform/index';
+import { platform } from '../../../platform/index';
 
 // 插件管理器
 class PluginManager {
@@ -154,14 +154,14 @@ class PluginManager {
           });
         },
         onMessage: (callback: (message: any) => void) => {
-          const wrappedCallback = (message: any, sender: any) => {
+          const wrappedCallback = (message: any) => {
             if (message.pluginId === pluginId || !message.pluginId) {
               callback(message);
             }
           };
           platform.messaging.onMessage(wrappedCallback);
           return {
-            dispose: () => platform.messaging.removeListener(wrappedCallback)
+            dispose: () => platform.messaging.offMessage(wrappedCallback)
           };
         }
       }

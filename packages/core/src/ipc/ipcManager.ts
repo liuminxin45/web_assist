@@ -1,4 +1,4 @@
-import { platform } from '@platform/index';
+import { platform } from '../../../platform/index';
 
 // 跨进程消息类型
 enum IpcMessageType {
@@ -349,5 +349,5 @@ class IpcManager {
 export const ipcManager = new IpcManager();
 
 // 导出类和类型
-export { IpcManager, IpcHandler, IpcMessageType };
-export type { IpcBaseMessage, IpcRequestMessage, IpcResponseMessage, IpcNotificationMessage, IpcErrorMessage, IpcHandshakeMessage };
+export { IpcManager, IpcMessageType };
+export type { IpcHandler, IpcBaseMessage, IpcRequestMessage, IpcResponseMessage, IpcNotificationMessage, IpcErrorMessage, IpcHandshakeMessage };

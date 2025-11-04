@@ -1,4 +1,4 @@
-import { Platform, PLATFORM_TYPE } from '@platform/index';
+import { Platform } from '@platform/index';
 
 // Web 平台实现
 const webStorage: Platform['storage'] = {
@@ -30,36 +30,17 @@ const webStorage: Platform['storage'] = {
 };
 
 const webRuntime: Platform['runtime'] = {
-  getVersion(): string {
-    return process.env.npm_package_version || '1.0.0';
+  getURL(path: string): string {
+    return path;
   },
   
-  getPlatformInfo(): { os: string; arch: string; platform: string } {
-    const userAgent = navigator.userAgent;
-    let os = 'unknown';
-    
-    if (userAgent.includes('Windows')) {
-      os = 'windows';
-    } else if (userAgent.includes('Mac OS')) {
-      os = 'macos';
-    } else if (userAgent.includes('Linux')) {
-      os = 'linux';
-    } else if (userAgent.includes('Android')) {
-      os = 'android';
-    } else if (userAgent.includes('iOS')) {
-      os = 'ios';
-    }
-    
+  getManifest(): any {
     return {
-      os,
-      arch: 'unknown',
-      platform: 'web',
+      version: process.env.npm_package_version || '1.0.0',
+      name: 'Web Helper',
+      description: 'Web Platform Helper'
     };
-  },
-  
-  isDevMode(): boolean {
-    return process.env.NODE_ENV === 'development';
-  },
+  }
 };
 
 const webMessaging: Platform['messaging'] = {
@@ -73,26 +54,36 @@ const webMessaging: Platform['messaging'] = {
     });
   },
   
-  onMessage(callback: (message: any, sender: any) => void): void {
+  onMessage(callback: (message: any) => void): void {
     // 简单的事件监听实现
     window.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'platform-message') {
-        callback(event.data.payload, { origin: event.origin });
+        callback(event.data.payload);
       }
     });
   },
   
-  removeListener(callback: (message: any, sender: any) => void): void {
+  offMessage(callback: (message: any) => void): void {
     // 由于简单实现，这里不做实际移除
     console.log('Listener removed in web platform');
   },
-};
+}
 
 export const webPlatform: Platform = {
   storage: webStorage,
   runtime: webRuntime,
   messaging: webMessaging,
-  name: PLATFORM_TYPE.WEB,
+  name: 'web',
+  pluginManager: {
+    async discoverAndLoadPlugins() {},
+    async activatePlugin(pluginId: string) {},
+    async deactivatePlugin(pluginId: string) {},
+    async getPlugin(pluginId: string) { return null; },
+    async getActivePlugins() { return []; },
+    async installPlugin(pluginData: any) { return false; },
+    async uninstallPlugin(pluginId: string) { return false; },
+    async listInstalledPlugins() { return []; }
+  }
 };
 
 export default webPlatform;
