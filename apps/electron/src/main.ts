@@ -1,39 +1,50 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const fs = require('fs');
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
+import * as path from 'path';
+import * as fs from 'fs';
 
 // 创建存储目录
-const getUserDataPath = () => {
+const getUserDataPath = (): string => {
   return app.getPath('userData');
 };
 
-const getStorageFilePath = () => {
+const getStorageFilePath = (): string => {
   const dataPath = getUserDataPath();
   const storageDir = path.join(dataPath, 'storage');
-  
+
   if (!fs.existsSync(storageDir)) {
     fs.mkdirSync(storageDir, { recursive: true });
   }
-  
+
   return path.join(storageDir, 'app-data.json');
 };
 
 // 简易文件存储实现
-const storage = {
+interface StorageData {
+  [key: string]: unknown;
+}
+
+const storage: {
+  data: StorageData;
+  load: () => void;
+  save: () => void;
+  set: (key: string, value: unknown) => void;
+  get: (key: string) => unknown;
+  remove: (key: string) => void;
+} = {
   data: {},
-  
+
   load() {
     try {
       const filePath = getStorageFilePath();
       if (fs.existsSync(filePath)) {
         const data = fs.readFileSync(filePath, 'utf8');
-        this.data = JSON.parse(data);
+        this.data = JSON.parse(data) as StorageData;
       }
     } catch (error) {
       console.error('Failed to load storage:', error);
     }
   },
-  
+
   save() {
     try {
       const filePath = getStorageFilePath();
@@ -42,42 +53,45 @@ const storage = {
       console.error('Failed to save storage:', error);
     }
   },
-  
-  set(key, value) {
+
+  set(key: string, value: unknown) {
     this.data[key] = value;
     this.save();
   },
-  
-  get(key) {
+
+  get(key: string): unknown {
     return this.data[key] !== undefined ? this.data[key] : null;
   },
-  
-  remove(key) {
+
+  remove(key: string) {
     delete this.data[key];
     this.save();
-  }
+  },
 };
 
 // 注册 IPC 处理函数
 const registerIpcHandlers = () => {
   // 存储相关 IPC
-  ipcMain.handle('storage-set', (event, { key, value }) => {
-    storage.set(key, value);
-  });
-  
-  ipcMain.handle('storage-get', (event, key) => {
+  ipcMain.handle(
+    'storage-set',
+    (event: IpcMainInvokeEvent, { key, value }: { key: string; value: unknown }) => {
+      storage.set(key, value);
+    }
+  );
+
+  ipcMain.handle('storage-get', (event: IpcMainInvokeEvent, key: string) => {
     return storage.get(key);
   });
-  
-  ipcMain.handle('storage-remove', (event, key) => {
+
+  ipcMain.handle('storage-remove', (event: IpcMainInvokeEvent, key: string) => {
     storage.remove(key);
   });
-  
+
   // 运行时信息 IPC
   ipcMain.handle('get-version', () => {
     return app.getVersion();
   });
-  
+
   ipcMain.handle('get-platform-info', () => {
     return {
       os: process.platform,
@@ -85,27 +99,27 @@ const registerIpcHandlers = () => {
       platform: 'electron',
     };
   });
-  
+
   ipcMain.handle('is-dev-mode', () => {
     return process.env.NODE_ENV === 'development';
   });
-  
+
   // 消息传递 IPC
-  ipcMain.handle('message-send', (event, message) => {
+  ipcMain.handle('message-send', (event: IpcMainInvokeEvent, message: unknown) => {
     console.log('Main process received message:', message);
     // 模拟消息处理
     return {
       success: true,
       message: 'Message processed by Electron main process',
       received: message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   });
-  
+
   // 向渲染进程发送消息的示例
-  ipcMain.on('message-broadcast', (event, message) => {
+  ipcMain.on('message-broadcast', (event: IpcMainInvokeEvent, message: unknown) => {
     // 广播到所有窗口
-    BrowserWindow.getAllWindows().forEach(window => {
+    BrowserWindow.getAllWindows().forEach((window) => {
       window.webContents.send('message-receive', message);
     });
   });
@@ -123,33 +137,33 @@ function createWindow() {
   });
 
   // 加载 Web 应用（在实际开发中，可以指向本地的 Web 服务器）
-  mainWindow.loadURL('http://localhost:5173');
+  void mainWindow.loadURL('http://localhost:5173');
 
   // 开发环境下打开调试工具
   if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools();
+    void mainWindow.webContents.openDevTools();
   }
 }
 
 // 应用生命周期事件
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
   // 加载存储数据
   storage.load();
-  
+
   // 注册 IPC 处理函数
   registerIpcHandlers();
-  
+
   // 创建窗口
   createWindow();
-  
+
   // macOS 特有的行为
-  app.on('activate', function () {
+  void app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
 // 关闭应用
-app.on('window-all-closed', function () {
+void app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
 });
 
