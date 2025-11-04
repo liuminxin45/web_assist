@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { CoreService, getAppInfo } from '@core/index';
+import { CoreService, getAppInfo, PlatformInfo, MessageResponse } from '@core/index';
 
 function App() {
   const [counter, setCounter] = useState(0);
-  const [platformInfo, setPlatformInfo] = useState<any>(null);
-  const [messageResponse, setMessageResponse] = useState<any>(null);
+  const [platformInfo, setPlatformInfo] = useState<PlatformInfo | null>(null);
+  const [messageResponse, setMessageResponse] = useState<MessageResponse | null>(null);
   const [appInfo] = useState(getAppInfo());
 
   const coreService = CoreService.getInstance();
@@ -23,39 +23,74 @@ function App() {
     setPlatformInfo(coreService.getPlatformInfo());
   };
 
-  const handleIncrement = async () => {
-    await coreService.incrementCounter();
-    updateCounter();
+  const handleIncrement = () => {
+    coreService
+      .incrementCounter()
+      .then(() => {
+        updateCounter();
+      })
+      .catch((error) => {
+        console.error('Failed to increment counter:', error);
+      });
   };
 
-  const handleDecrement = async () => {
-    await coreService.decrementCounter();
-    updateCounter();
+  const handleDecrement = () => {
+    coreService
+      .decrementCounter()
+      .then(() => {
+        updateCounter();
+      })
+      .catch((error) => {
+        console.error('Failed to decrement counter:', error);
+      });
   };
 
-  const handleSendMessage = async () => {
-    const response = await coreService.sendTestMessage();
-    setMessageResponse(response);
+  const handleSendMessage = () => {
+    coreService
+      .sendTestMessage()
+      .then((response) => {
+        setMessageResponse(response);
+      })
+      .catch((error) => {
+        console.error('Failed to send test message:', error);
+      });
   };
 
   return (
-    <div style={{
-      fontFamily: 'Arial, sans-serif',
-      maxWidth: '600px',
-      margin: '0 auto',
-      padding: '20px',
-      textAlign: 'center'
-    }}>
+    <div
+      style={{
+        fontFamily: 'Arial, sans-serif',
+        maxWidth: '600px',
+        margin: '0 auto',
+        padding: '20px',
+        textAlign: 'center',
+      }}
+    >
       <header style={{ marginBottom: '30px' }}>
         <h1>{appInfo.name}</h1>
         <p style={{ color: '#666' }}>{appInfo.description}</p>
         <p>Version: {appInfo.version}</p>
       </header>
 
-      <section style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+      <section
+        style={{
+          marginBottom: '30px',
+          padding: '20px',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '8px',
+        }}
+      >
         <h2>Platform Information</h2>
         {platformInfo && (
-          <pre style={{ textAlign: 'left', backgroundColor: '#fff', padding: '15px', borderRadius: '4px', overflowX: 'auto' }}>
+          <pre
+            style={{
+              textAlign: 'left',
+              backgroundColor: '#fff',
+              padding: '15px',
+              borderRadius: '4px',
+              overflowX: 'auto',
+            }}
+          >
             {JSON.stringify(platformInfo, null, 2)}
           </pre>
         )}
@@ -63,28 +98,26 @@ function App() {
 
       <section style={{ marginBottom: '30px' }}>
         <h2>Counter</h2>
-        <div style={{ fontSize: '48px', fontWeight: 'bold', margin: '20px 0' }}>
-          {counter}
-        </div>
+        <div style={{ fontSize: '48px', fontWeight: 'bold', margin: '20px 0' }}>{counter}</div>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-          <button 
-            onClick={handleDecrement} 
+          <button
+            onClick={handleDecrement}
             disabled={counter === 0}
             style={{
               padding: '10px 20px',
               fontSize: '16px',
               cursor: counter === 0 ? 'not-allowed' : 'pointer',
-              opacity: counter === 0 ? 0.5 : 1
+              opacity: counter === 0 ? 0.5 : 1,
             }}
           >
             - Decrement
           </button>
-          <button 
+          <button
             onClick={handleIncrement}
             style={{
               padding: '10px 20px',
               fontSize: '16px',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             Increment +
@@ -94,12 +127,12 @@ function App() {
 
       <section style={{ marginBottom: '30px' }}>
         <h2>Test Messaging</h2>
-        <button 
+        <button
           onClick={handleSendMessage}
           style={{
             padding: '10px 20px',
             fontSize: '16px',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           Send Test Message
@@ -107,7 +140,15 @@ function App() {
         {messageResponse && (
           <div style={{ marginTop: '20px' }}>
             <h3>Response:</h3>
-            <pre style={{ textAlign: 'left', backgroundColor: '#fff', padding: '15px', borderRadius: '4px', overflowX: 'auto' }}>
+            <pre
+              style={{
+                textAlign: 'left',
+                backgroundColor: '#fff',
+                padding: '15px',
+                borderRadius: '4px',
+                overflowX: 'auto',
+              }}
+            >
               {JSON.stringify(messageResponse, null, 2)}
             </pre>
           </div>
