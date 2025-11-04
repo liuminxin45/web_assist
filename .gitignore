@@ -72,8 +72,9 @@ artifacts
 !vite.config.js
 # Ignore TypeScript declaration files
 *.d.ts
-# But don't ignore type declaration files that are part of the source code
-!packages/**/*.d.ts
+# But don't ignore manually maintained type declaration files
+!packages/**/types.d.ts
+!apps/**/types/*.d.ts
 
 # Optional npm cache directory
 .npm
