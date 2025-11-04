@@ -22,7 +22,7 @@ jobs:
       run: npm install -g pnpm
     
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
     
     - name: Build All
       run: pnpm build:all
@@ -34,10 +34,10 @@ jobs:
       run: pnpm lint
     
     - name: Format Check
-      run: pnpm format -- --check
+      run: pnpm format:check
     
     - name: TypeScript Check
-      run: pnpm typecheck
+      run: pnpm typecheck:all
 
   deploy-extension:
     needs: build-and-test
@@ -55,7 +55,7 @@ jobs:
       run: npm install -g pnpm
     
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
     
     - name: Build Extension
       run: cd apps/extension && pnpm build

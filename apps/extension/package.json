@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx vite build --watch",
-    "build": "npx vite build"
+    "build": "npx vite build",
+    "typecheck": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "react": "^18.2.0",
