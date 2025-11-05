@@ -60,7 +60,7 @@ function App() {
     coreService
       .sendTestMessage()
       .then((response) => {
-        setMessageResponse(response);
+        setMessageResponse(response as MessageResponse);
       })
       .catch((error) => {
         console.error('Failed to send test message:', error);
