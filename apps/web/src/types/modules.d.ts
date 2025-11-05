@@ -7,14 +7,23 @@ declare module '@core/index' {
   }
 
   export interface PlatformInfo {
-    type: string;
+    name: string;
     version: string;
-    features?: Record<string, unknown>;
+    appName: string;
+    isDev: boolean;
+    platformDetails: {
+      os: string;
+      arch: string;
+      platform: string;
+    };
+    nativeHostConnected: boolean;
   }
 
   export interface MessageResponse {
-    status: string;
+    success: boolean;
     data?: unknown;
+    result?: unknown;
+    error?: Error | string;
   }
 
   export class CoreService {
@@ -22,9 +31,9 @@ declare module '@core/index' {
     static getInstance(): CoreService;
     getCounter(): number;
     getPlatformInfo(): PlatformInfo;
-    incrementCounter(): Promise<void>;
-    decrementCounter(): Promise<void>;
-    sendTestMessage(): Promise<MessageResponse>;
+    incrementCounter(): Promise<number>;
+    decrementCounter(): Promise<number>;
+    sendTestMessage(): Promise<unknown>;
     initialize(): Promise<void>;
   }
 
@@ -32,10 +41,40 @@ declare module '@core/index' {
 }
 
 declare module '@platform/index' {
+  export interface PlatformStorage {
+    get<T = unknown>(key: string): Promise<T | undefined>;
+    set<T = unknown>(key: string, value: T): Promise<void>;
+    remove(key: string): Promise<void>;
+  }
+
+  export interface PlatformRuntime {
+    getURL(path: string): string;
+    getManifest(): Record<string, unknown>;
+  }
+
+  export interface PlatformMessaging {
+    sendMessage<T = unknown>(message: Record<string, unknown>): Promise<T | undefined>;
+    onMessage(callback: (message: Record<string, unknown>) => void): void;
+    offMessage(callback: (message: Record<string, unknown>) => void): void;
+  }
+
+  export interface PlatformPluginManager {
+    discoverAndLoadPlugins(): Promise<void>;
+    activatePlugin(pluginId: string): Promise<void>;
+    deactivatePlugin(pluginId: string): Promise<void>;
+    getPlugin(pluginId: string): Promise<{ metadata: any; exports: any } | null>;
+    getActivePlugins(): Promise<Array<{ id: string; metadata: any }>>;
+    installPlugin(pluginData: Record<string, unknown>): Promise<boolean>;
+    uninstallPlugin(pluginId: string): Promise<boolean>;
+    listInstalledPlugins(): Promise<Array<{ id: string; metadata: any }>>;
+  }
+
   export interface Platform {
-    name: string;
-    version: string;
-    // 添加更多平台接口属性
+    storage: PlatformStorage;
+    runtime: PlatformRuntime;
+    messaging: PlatformMessaging;
+    pluginManager: PlatformPluginManager;
+    name: 'web' | 'electron' | 'webext';
   }
 
   export function setPlatform(platform: Platform): void;
