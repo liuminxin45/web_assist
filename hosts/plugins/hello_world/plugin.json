@@ -1,0 +1,22 @@
+{
+  "name": "hello_world",
+  "version": "1.0.0",
+  "entry": "node index.js",
+  "permissions": [
+    "fs.read",
+    "process"
+  ],
+  "capabilities": [
+    "echo",
+    "sum"
+  ],
+  "os": [
+    "win32",
+    "linux",
+    "darwin"
+  ],
+  "arch": [
+    "x64",
+    "arm64"
+  ]
+}

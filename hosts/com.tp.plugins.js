@@ -35,12 +35,12 @@ const mockPlugins = [
 
 // 初始化插件注册表
 function initializeRegistry() {
-  console.log(`Initializing plugin registry from ${PLUGINS_DIR}`);
+  console.error(`Initializing plugin registry from ${PLUGINS_DIR}`);
   
   // 确保插件目录存在
   if (!fs.existsSync(PLUGINS_DIR)) {
     fs.mkdirSync(PLUGINS_DIR, { recursive: true });
-    console.log(`Created plugins directory: ${PLUGINS_DIR}`);
+    console.error(`Created plugins directory: ${PLUGINS_DIR}`);
   }
   
   // 在实际应用中，这里应该扫描目录并加载plugin.json文件
@@ -65,11 +65,11 @@ async function startPlugin(name) {
   }
   
   if (procs.has(name)) {
-    console.log(`Plugin ${name} is already running`);
+    console.error(`Plugin ${name} is already running`);
     return;
   }
   
-  console.log(`Starting plugin: ${name}`);
+  console.error(`Starting plugin: ${name}`);
   
   // 确保插件目录存在
   if (!fs.existsSync(plugin.dir)) {
@@ -99,13 +99,13 @@ async function startPlugin(name) {
     });
     
     child.on('close', (code) => {
-      console.log(`Plugin ${name} process exited with code ${code}`);
+      console.error(`Plugin ${name} process exited with code ${code}`);
       procs.delete(name);
       
       // 如果插件应该是启用的，尝试重启它
       const currentPlugin = registry.get(name);
       if (currentPlugin && currentPlugin.enabled) {
-        console.log(`Attempting to restart plugin ${name}...`);
+        console.error(`Attempting to restart plugin ${name}...`);
         setTimeout(() => startPlugin(name), 1000);
       }
     });
@@ -117,7 +117,7 @@ async function startPlugin(name) {
     
     // 保存进程引用
     procs.set(name, child);
-    console.log(`Plugin ${name} started successfully`);
+    console.error(`Plugin ${name} started successfully`);
     
     // 发送初始化消息给插件
     sendToPlugin(name, {
@@ -135,7 +135,7 @@ async function startPlugin(name) {
 function stopPlugin(name) {
   const child = procs.get(name);
   if (child) {
-    console.log(`Stopping plugin: ${name}`);
+    console.error(`Stopping plugin: ${name}`);
     child.kill();
     procs.delete(name);
   }
@@ -177,7 +177,7 @@ function handlePluginOutput(name, data) {
           }
         } else {
           // 处理其他类型的消息
-          console.log(`Received from plugin ${name}:`, message);
+          console.error(`Received from plugin ${name}:`, message);
         }
       } catch (error) {
         console.error(`Failed to parse output from plugin ${name}:`, error);
@@ -235,7 +235,7 @@ function createMockPlugin(plugin) {
   if (plugin.name === 'hello_world') {
     pluginCode = `
 // Hello World Plugin
-console.log('Hello World plugin started');
+console.error('Hello World plugin started');
 
 process.stdin.on('data', (buf) => {
   try {
@@ -247,7 +247,7 @@ process.stdin.on('data', (buf) => {
         const msg = JSON.parse(line);
         
         if (msg.type === 'INITIALIZE') {
-          console.log('Plugin initialized with info:', msg.pluginInfo);
+          console.error('Plugin initialized with info:', msg.pluginInfo);
           return;
         }
         
@@ -280,7 +280,7 @@ function handleMethod(msg) {
       break;
       
     default:
-      sendError(msg.id, `Method ${msg.method} not implemented`);
+      sendError(msg.id, "Method " + msg.method + " not implemented");
       return;
   }
   
@@ -312,7 +312,7 @@ function sendError(id, message) {
 
 // 优雅退出
 process.on('SIGTERM', () => {
-  console.log('Plugin shutting down');
+  console.error('Plugin shutting down');
   process.exit(0);
 });
 `;
@@ -322,7 +322,7 @@ process.on('SIGTERM', () => {
 const fs = require('fs');
 const path = require('path');
 
-console.log('File Utils plugin started');
+console.error('File Utils plugin started');
 
 process.stdin.on('data', (buf) => {
   try {
@@ -334,7 +334,7 @@ process.stdin.on('data', (buf) => {
         const msg = JSON.parse(line);
         
         if (msg.type === 'INITIALIZE') {
-          console.log('Plugin initialized with info:', msg.pluginInfo);
+          console.error('Plugin initialized with info:', msg.pluginInfo);
           return;
         }
         
@@ -370,7 +370,7 @@ async function handleMethod(msg) {
         break;
         
       default:
-        throw new Error(`Method ${msg.method} not implemented`);
+        throw new Error("Method " + msg.method + " not implemented");
     }
     
     sendResponse(msg.id, result);
@@ -383,7 +383,7 @@ function readFile(filePath) {
   return new Promise((resolve, reject) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
-        reject(new Error(`Failed to read file: ${err.message}`));
+        reject(new Error("Failed to read file: " + err.message));
       } else {
         resolve({ content: data, path: filePath });
       }
@@ -395,7 +395,7 @@ function listFiles(dirPath) {
   return new Promise((resolve, reject) => {
     fs.readdir(dirPath, { withFileTypes: true }, (err, entries) => {
       if (err) {
-        reject(new Error(`Failed to list directory: ${err.message}`));
+        reject(new Error("Failed to list directory: " + err.message));
       } else {
         resolve(entries.map(entry => ({
           name: entry.name,
@@ -432,7 +432,7 @@ function sendError(id, message) {
 
 // 优雅退出
 process.on('SIGTERM', () => {
-  console.log('Plugin shutting down');
+  console.error('Plugin shutting down');
   process.exit(0);
 });
 `;
@@ -440,7 +440,7 @@ process.on('SIGTERM', () => {
   
   // 写入插件代码
   fs.writeFileSync(indexPath, pluginCode.trim());
-  console.log(`Created mock plugin at ${indexPath}`);
+  console.error(`Created mock plugin at ${indexPath}`);
   
   // 创建plugin.json文件
   const pluginJsonPath = path.join(plugin.dir, 'plugin.json');
@@ -455,19 +455,19 @@ process.on('SIGTERM', () => {
   };
   
   fs.writeFileSync(pluginJsonPath, JSON.stringify(pluginJson, null, 2));
-  console.log(`Created plugin.json at ${pluginJsonPath}`);
+  console.error(`Created plugin.json at ${pluginJsonPath}`);
 }
 
 // 处理来自Chrome扩展的消息
 function handleMessage(message) {
-  console.log('Received message from extension:', message);
+  console.error('Received message from extension:', message);
   
   // 处理JSON-RPC请求
   if (message.jsonrpc === '2.0' && message.method) {
     handleRpcRequest(message);
   } else {
     // 处理非RPC消息
-    console.log('Unknown message type:', message);
+    console.error('Unknown message type:', message);
     sendToExtension({
       error: 'Unknown message format'
     });
@@ -565,6 +565,11 @@ function sendToExtension(message) {
 
 // 从Chrome扩展读取消息
 function readFromExtension() {
+  // 确保stdin处于二进制模式
+  if (process.stdin.isTTY) {
+    console.error('Warning: stdin is a TTY, which is not suitable for binary communication');
+  }
+  
   // 首先读取4字节的消息长度
   const header = Buffer.alloc(4);
   let headerBytesRead = 0;
@@ -576,7 +581,13 @@ function readFromExtension() {
       return process.stdin.once('readable', readHeader);
     }
     
-    bytesRead.copy(header, headerBytesRead);
+    // 使用Buffer.concat而不是.copy来避免编码问题
+    if (headerBytesRead === 0) {
+      bytesRead.copy(header, 0);
+    } else {
+      const temp = Buffer.concat([header.slice(0, headerBytesRead), bytesRead]);
+      temp.copy(header, 0);
+    }
     headerBytesRead += bytesRead.length;
     
     if (headerBytesRead === 4) {
@@ -590,20 +601,20 @@ function readFromExtension() {
   }
   
   function readMessageBody(length) {
-    const body = Buffer.alloc(length);
-    let bodyBytesRead = 0;
+    let body = Buffer.alloc(0);
     
     function readBody() {
-      const bytesRead = process.stdin.read(length - bodyBytesRead);
+      const remaining = length - body.length;
+      const bytesRead = process.stdin.read(remaining);
       if (bytesRead === null) {
         // 没有足够的数据可读，等待更多数据
         return process.stdin.once('readable', readBody);
       }
       
-      bytesRead.copy(body, bodyBytesRead);
-      bodyBytesRead += bytesRead.length;
+      // 累加读取到的数据
+      body = Buffer.concat([body, bytesRead]);
       
-      if (bodyBytesRead === length) {
+      if (body.length === length) {
         // 已读取完整的消息体
         try {
           const message = JSON.parse(body.toString('utf8'));
@@ -630,10 +641,9 @@ function readFromExtension() {
 
 // 初始化并启动host
 function startHost() {
-  console.log('Starting Native Messaging Host: com.tp.plugins');
+  console.error('Starting Native Messaging Host: com.tp.plugins');
   
-  // 设置编码
-  process.stdin.setEncoding('utf8');
+  // 注意：删除setEncoding('utf8')调用，保持stdin为二进制模式
   
   // 初始化插件注册表
   initializeRegistry();
@@ -643,17 +653,17 @@ function startHost() {
   
   // 处理进程信号
   process.on('SIGINT', () => {
-    console.log('Host shutting down (SIGINT)');
+    console.error('Host shutting down (SIGINT)');
     cleanup();
   });
   
   process.on('SIGTERM', () => {
-    console.log('Host shutting down (SIGTERM)');
+    console.error('Host shutting down (SIGTERM)');
     cleanup();
   });
   
   process.on('exit', () => {
-    console.log('Host process exiting');
+    console.error('Host process exiting');
   });
 }
 

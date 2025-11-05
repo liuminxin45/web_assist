@@ -1,9 +1,28 @@
 {
   "name": "com.tp.plugins",
   "description": "Plugin Host for Chrome Web Helper Extension",
-  "path": "e:\\3rd\\chrome\\web_helper\\hosts\\com.tp.plugins.js",
+  "path": "%INSTALLED_PATH%",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://*"
+    "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef/"
   ]
 }
+/*
+ * 跨平台安装说明：
+ * 
+ * Windows:
+ * - %INSTALLED_PATH% 需要替换为com.tp.plugins.cmd的实际绝对路径
+ * - 注册表配置：
+ *   [HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\com.tp.plugins]
+ *   @="<实际路径>\\com.tp.plugins.json"
+ * 
+ * Linux/macOS:
+ * - %INSTALLED_PATH% 需要替换为com.tp.plugins.sh的实际绝对路径
+ * - 确保.sh文件有执行权限：chmod +x com.tp.plugins.sh
+ * - Linux配置路径：~/.config/google-chrome/NativeMessagingHosts/com.tp.plugins.json
+ * - macOS配置路径：~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.tp.plugins.json
+ * 
+ * 注意：
+ * - allowed_origins 需要替换为实际的扩展ID
+ * - 安装程序应该根据目标操作系统动态选择并配置正确的脚本路径
+ */
