@@ -56,8 +56,15 @@ export class CoreService {
     return CoreService.instance;
   }
 
-  // 初始化核心服务
+  private initialized = false;
+
+  // 初始化核心服务（幂等方法，可多次调用）
   async initialize(): Promise<void> {
+    if (this.initialized) {
+      console.log('CoreService already initialized');
+      return; // 已经初始化过，直接返回
+    }
+
     try {
       const platform = getCurrentPlatform();
       // 从存储中加载计数器值
@@ -79,6 +86,8 @@ export class CoreService {
         );
         this.nativeHostConnected = false;
       }
+
+      this.initialized = true; // 标记为已初始化
     } catch (error) {
       // 确保在初始化失败时正确记录警告日志，符合测试期望
       console.warn('Failed to load plugins during initialization:', error);

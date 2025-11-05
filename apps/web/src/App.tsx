@@ -10,9 +10,20 @@ function App() {
   const coreService = CoreService.getInstance();
 
   useEffect(() => {
-    // 初始化数据
-    updateCounter();
-    updatePlatformInfo();
+    // 等待CoreService初始化完成
+    const waitForInitialization = async () => {
+      try {
+        await coreService.initialize();
+
+        // 初始化数据
+        updateCounter();
+        updatePlatformInfo();
+      } catch (error) {
+        console.error('Failed to initialize:', error);
+      }
+    };
+
+    void waitForInitialization();
   }, []);
 
   const updateCounter = () => {
