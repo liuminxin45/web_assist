@@ -2,8 +2,9 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 // 定义API接口类型
 interface PlatformInfo {
+  os: NodeJS.Platform;
+  arch: string;
   platform: string;
-  version: string;
 }
 
 interface MessageData {
@@ -23,8 +24,15 @@ interface ElectronRuntimeAPI {
   isDevMode: () => Promise<boolean>;
 }
 
+interface MessageResponse {
+  success: boolean;
+  message: string;
+  received: unknown;
+  timestamp: number;
+}
+
 interface ElectronMessagingAPI {
-  sendMessage: (message: MessageData) => Promise<void>;
+  sendMessage: (message: MessageData) => Promise<MessageResponse>;
   onMessage: (callback: (message: MessageData) => void) => () => void;
 }
 

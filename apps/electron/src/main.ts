@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent, IpcMainEvent } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -117,7 +117,7 @@ const registerIpcHandlers = () => {
   });
 
   // 向渲染进程发送消息的示例
-  ipcMain.on('message-broadcast', (event: IpcMainInvokeEvent, message: unknown) => {
+  ipcMain.on('message-broadcast', (event: IpcMainEvent, message: unknown) => {
     // 广播到所有窗口
     BrowserWindow.getAllWindows().forEach((window) => {
       window.webContents.send('message-receive', message);
@@ -137,7 +137,7 @@ function createWindow() {
   });
 
   // 加载 Web 应用（在实际开发中，可以指向本地的 Web 服务器）
-  void mainWindow.loadURL('http://localhost:5173');
+  void mainWindow.loadURL('https://www.baidu.com');
 
   // 开发环境下打开调试工具
   if (process.env.NODE_ENV === 'development') {
