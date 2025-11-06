@@ -1,3 +1,32 @@
+/**
+ * .eslintrc.js
+ * 
+ * ESLint 配置文件
+ * 
+ * 功能说明：
+ * - 定义项目的代码质量规则和编码规范
+ * - 为不同类型的文件（TypeScript、JavaScript、测试文件）提供特定配置
+ * - 集成TypeScript支持和TypeScript-ESLint插件
+ * - 确保与Prettier格式化工具兼容
+ * 
+ * 配置结构：
+ * - root: 声明此为项目根配置，不继承父目录配置
+ * - extends: 继承基础规则集
+ * - env: 定义代码运行环境
+ * - rules: 核心规则配置
+ * - overrides: 为特定文件类型提供差异化配置
+ * 
+ * 主要规则说明：
+ * - 生产环境禁用console和debugger
+ * - TypeScript文件启用类型检查相关规则
+ * - 测试文件提供特殊环境和规则豁免
+ * - JavaScript文件使用基础ESLint规则
+ * 
+ * @file .eslintrc.js
+ * @author 项目团队
+ * @license MIT
+ */
+
 module.exports = {
   root: true,
   // 默认配置，不包含TypeScript特定的规则和插件
