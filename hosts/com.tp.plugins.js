@@ -498,9 +498,9 @@ async function handleRpcRequest(request) {
             throw new Error('Plugin name is required');
           }
           await startPlugin(params.name);
-          const pluginToEnable = registry.get(params.name);
-          if (pluginToEnable) {
-            pluginToEnable.enabled = true;
+          // 直接操作registry.get()的结果，完全避免变量声明
+          if (registry.get(params.name)) {
+            registry.get(params.name).enabled = true;
           }
           result = { success: true, name: params.name };
           break;

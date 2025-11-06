@@ -25,7 +25,8 @@
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "changeset:publish": "changeset publish",
-    "setup": "pnpm install && pnpm prepare"
+    "setup": "pnpm install && pnpm prepare",
+    "clean:all": "node scripts/clean-all.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

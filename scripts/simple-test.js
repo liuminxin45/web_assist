@@ -1,3 +1,18 @@
+/**
+ * simple-test.js
+ * 
+ * 简易测试框架与测试套件
+ * 
+ * 功能说明：
+ * - 提供轻量级测试框架，包含测试函数、断言方法
+ * - 实现模拟平台（Web、Electron、WebExtension）环境
+ * - 验证跨平台一致性和核心功能
+ * 
+ * @file simple-test.js
+ * @author 项目团队
+ * @license MIT
+ */
+
 const fs = require('fs');
 const path = require('path');
 
